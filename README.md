@@ -1,20 +1,20 @@
-# FiveM / Cfx.re API-Dokumentation
+# FiveM / Cfx.re API Documentation
 
-> **Stand:** 16.09.2026 — Alle Endpunkte wurden am Erstellungsdatum live getestet.
-> **Quellen:** [docs.fivem.net](https://docs.fivem.net/docs/), [servers.fivem.net](https://servers.fivem.net/) (Frontend-Bundle analysiert), [github.com/citizenfx/fivem](https://github.com/citizenfx/fivem), [github.com/citizenfx/fivem-docs](https://github.com/citizenfx/fivem-docs), [HAMz-Project/FiveM-Api](https://github.com/HAMz-Project/FiveM-Api) (deprecated)
+> **Last verified:** 2026-09-16 — All endpoints were tested live on the date of creation.
+> **Sources:** [docs.fivem.net](https://docs.fivem.net/docs/), [servers.fivem.net](https://servers.fivem.net/) (production frontend bundle analyzed), [github.com/citizenfx/fivem](https://github.com/citizenfx/fivem), [github.com/citizenfx/fivem-docs](https://github.com/citizenfx/fivem-docs), [HAMz-Project/FiveM-Api](https://github.com/HAMz-Project/FiveM-Api) (deprecated)
 
-Legende: ✅ verifiziert · ⚠️ alive, aber eingeschränkt/authpflichtig · ❌ tot/unerreichbar
+Legend: ✅ verified · ⚠️ alive, but restricted/needs auth · ❌ dead/unreachable
 
 ---
 
-## 1. Live-Server HTTP-API (jeder FXServer-Server)
+## 1. Live Server HTTP API (every FXServer instance)
 
-Jeder laufende FXServer exponiert diese Endpunkte auf seinem Game-Port (Standard `30120`).
-Quelle: `citizenfx/fivem` → `code/components/citizen-server-impl/src/InfoHttpHandler.cpp` (offiziell in den [Server Commands Docs](https://docs.fivem.net/docs/server-manual/server-commands/) referenziert).
+Every running FXServer exposes these endpoints on its game port (default `30120`).
+Source: `citizenfx/fivem` → `code/components/citizen-server-impl/src/InfoHttpHandler.cpp` (officially referenced in the [Server Commands docs](https://docs.fivem.net/docs/server-manual/server-commands/)).
 
 ### 1.1 `GET http://{ip:port}/info.json` ✅
 
-Statische Server-Informationen.
+Static server information.
 
 ```json
 {
@@ -31,7 +31,7 @@ Statische Server-Informationen.
     "gamename": "gta5",
     "locale": "en-EU",
     "onesync_enabled": "true",
-    "...": "alle sets/sv_* Convars"
+    "...": "all sets/sv_* convars"
   },
   "serverVersion": "..."
 }
@@ -39,7 +39,7 @@ Statische Server-Informationen.
 
 ### 1.2 `GET http://{ip:port}/dynamic.json` ✅
 
-Dynamische, polling-freundliche Informationen (vom Server-Browser benutzt).
+Dynamic, polling-friendly information (used by the server browser).
 
 ```json
 {
@@ -52,31 +52,31 @@ Dynamische, polling-freundliche Informationen (vom Server-Browser benutzt).
 }
 ```
 
-| Feld | Typ | Bedeutung |
-|------|-----|-----------|
-| `clients` | int | Aktuelle Spielerzahl |
-| `sv_maxclients` | string | Max. Spieler (`sv_maxclients` Convar) |
-| `hostname` | string | Hostname mit `^`-Farbcodes |
-| `gametype` / `mapname` | string | Aus `gametype`/`mapname` Convars |
-| `iv` | string | Icon-Version (für Icon-Caching) |
+| Field | Type | Meaning |
+|-------|------|---------|
+| `clients` | int | Current player count |
+| `sv_maxclients` | string | Max players (`sv_maxclients` convar) |
+| `hostname` | string | Hostname with `^` color codes |
+| `gametype` / `mapname` | string | From `gametype`/`mapname` convars |
+| `iv` | string | Icon version (for icon caching) |
 
 ### 1.3 `GET http://{ip:port}/players.json` ✅
 
-Spielerliste.
+Player list.
 
 ```json
 [
-  { "endpoint": "1.2.3.4", "id": 1, "identifiers": ["license:...", "steam:...", "discord:..."], "name": "Spielername", "ping": 45 },
+  { "endpoint": "1.2.3.4", "id": 1, "identifiers": ["license:...", "steam:...", "discord:..."], "name": "PlayerName", "ping": 45 },
   { "endpoint": "127.0.0.1", "id": 0, "identifiers": [], "name": "Player", "ping": 0 }
 ]
 ```
 
-> ⚠️ `endpoint` (IP) wird mit `sv_endpointPrivacy true` versteckt.
-> ❗ `identifiers` sind nur bei eigener Server-Abfrage vollständiger — die Serverlisten-API entfernt/anonymisiert sie.
+> ⚠️ The `endpoint` (IP) is hidden with `sv_endpointPrivacy true`.
+> ❗ `identifiers` are only fully populated when querying your own server — the server list API strips/anonymizes them.
 
 ### 1.4 `GET http://{ip:port}/perf` ✅
 
-Prometheus-Textformat-Metriken (Tick-Zeiten, RAM, Spieler etc.).
+Prometheus text-format metrics (tick times, RAM, players, etc.).
 
 ```
 # HELP tickTime Time spent on server ticks
@@ -85,45 +85,45 @@ tickTime_count{name="svMain"} 78247
 ...
 ```
 
-> Auth (optional): `sv_prometheusBasicAuthUser` / `sv_prometheusBasicAuthPassword` in `server.cfg`. Wird auch von txAdmin gepollt.
+> Auth (optional): `sv_prometheusBasicAuthUser` / `sv_prometheusBasicAuthPassword` in `server.cfg`. Also polled by txAdmin.
 
-### 1.5 Wichtige Hinweise
+### 1.5 Important notes
 
-- **`sv_requestParanoia` ≥ 2** blockt alle `.json`-Endpunkte für Browser-artige Requests (Antwort: `"Nope."`).
-- `.json`-Endpunkte sind Teil des FXServer-Kerns — immer verfügbar, kein Resource nötig.
-- Ports: TCP `30120` = HTTP/File-Server, UDP `30120` = Game/RCon.
+- **`sv_requestParanoia` ≥ 2** blocks all `.json` endpoints for browser-like requests (response: `"Nope."`).
+- The `.json` endpoints are part of the FXServer core — always available, no resource required.
+- Ports: TCP `30120` = HTTP/file server, UDP `30120` = game/RCon.
 
 ---
 
-## 2. Server-Listen-API (Backend von servers.fivem.net)
+## 2. Server List API (backend of servers.fivem.net)
 
-Das Frontend auf `servers.fivem.net` ist eine SPA; die tatsächliche API liegt auf **`frontend.cfx-services.net`** (aus dem Produktions-Bundle extrahiert).
+The frontend at `servers.fivem.net` is an SPA; the actual API lives on **`frontend.cfx-services.net`** (extracted from the production bundle).
 
-**Basis:** `https://frontend.cfx-services.net/api/servers`
+**Base URL:** `https://frontend.cfx-services.net/api/servers`
 
-### 2.1 Alle Server (Master-Liste) ✅
+### 2.1 All servers (master list) ✅
 
 ```
 GET https://frontend.cfx-services.net/api/servers/streamRedir/
-  → 302 Redirect auf:
+  → 302 redirect to:
 GET https://frontend.cfx-services.net/api/servers/stream/{unixTimestamp}/
-  → 200, ~20 MB Antwort
+  → 200, ~20 MB response
 ```
 
-- **Format: Protobuf** (kein JSON mehr!). Aufbau: wiederholt `[…4-Byte-LE-Länge…][master.Server-Message]`.
-- Schema siehe [Abschnitt 3](#3-protobuf-schema-master).
-- ⚠️ Größenordnung: mehrere zehntausend Server, Download ~20 MB. Nicht für Polling geeignet.
-- ❌ Die alte URL `https://servers-frontend.fivem.net/api/servers/streamRedir` (ohne Trailing Slash, alter Host) liefert **404**.
+- **Format: Protobuf** (no longer JSON!). Layout: repeated `[…4-byte LE length…][master.Server message]`.
+- Schema see [section 3](#3-protobuf-schema-master).
+- ⚠️ Scale: tens of thousands of servers, ~20 MB download. Not suitable for polling.
+- ❌ The old URL `https://servers-frontend.fivem.net/api/servers/streamRedir` (no trailing slash, old host) returns **404**.
 
-### 2.2 Einzelner Server ✅
+### 2.2 Single server ✅
 
 ```
 GET https://frontend.cfx-services.net/api/servers/single/{hashId}
 ```
 
-`{hashId}` = Short-ID der Serverliste, identisch mit dem **`cfx.re/join/{hashId}`**-Connect-Code (z. B. `moyejq`).
+`{hashId}` = short ID from the server list, identical to the **`cfx.re/join/{hashId}`** connect code (e.g. `moyejq`).
 
-Antwort-Shape (identisch zu `info.json`):
+Response shape (identical to `info.json`):
 
 ```json
 {
@@ -135,24 +135,24 @@ Antwort-Shape (identisch zu `info.json`):
     "server": "FXServer-master v1.0.0.35945 linux",
     "enhancedHostSupport": true,
     "iconVersion": -1292580404,
-    "vars": { "...": "wie info.json vars" },
+    "vars": { "...": "same as info.json vars" },
     "connectEndPoints": ["79.127.215.11:30120"],
     "players": [ { "name": "...", "identifiers": [...], "ping": 0, "id": 0, "endpoint": "..." } ]
   }
 }
 ```
 
-> `GET …/single/{ip:port}` mit alter Adress-Form liefert `404 Not Found` — nur Hash-IDs werden akzeptiert.
+> `GET …/single/{ip:port}` with the legacy address form returns `404 Not Found` — only hash IDs are accepted.
 
-### 2.3 Server-Icon ✅ (URL-Pattern aus dem Frontend-Bundle)
+### 2.3 Server icon ✅ (URL pattern from the frontend bundle)
 
 ```
 GET https://frontend.cfx-services.net/api/servers/icon/{joinId}/{iconVersion}.png
 ```
 
-`iconVersion` kommt aus `Data.iconVersion` (Cache-Busting-Int).
+`iconVersion` comes from `Data.iconVersion` (cache-busting int).
 
-### 2.4 Featured / Spotlight-Server ✅
+### 2.4 Featured / spotlight servers ✅
 
 ```
 GET https://gss.cfx-services.net/v1/public/featured-servers/fivem
@@ -168,27 +168,27 @@ GET https://gss.cfx-services.net/v1/public/featured-servers/fivem
 }
 ```
 
-Featured-Server-Criteria: [docs.fivem.net/docs/server-manual/featured-server-list/](https://docs.fivem.net/docs/server-manual/featured-server-list/) (Handpicked, keine Bewerbungen möglich).
+Featured server criteria: [docs.fivem.net/docs/server-manual/featured-server-list/](https://docs.fivem.net/docs/server-manual/featured-server-list/) (handpicked, no applications accepted).
 
-### 2.5 Tweets (Auf der Serverliste angezeigt) ✅
+### 2.5 Tweets (displayed on the server list) ✅
 
 ```
 GET https://gss.cfx-services.net/v1/public/tweets
 ```
 
-### 2.6 Upvote-API ⚠️
+### 2.6 Upvote API ⚠️
 
 ```
-https://servers-frontend.fivem.net/api/upvote/   → 403 (erfordert Cfx.re-Session-Token)
+https://servers-frontend.fivem.net/api/upvote/   → 403 (requires Cfx.re session token)
 ```
 
-Nur aus dem Spiel-/Frontend-Kontext mit Auth nutzbar. Kein öffentlicher Endpunkt.
+Only usable from the game/frontend context with auth. Not a public endpoint.
 
 ---
 
-## 3. Protobuf-Schema (`master`)
+## 3. Protobuf Schema (`master`)
 
-Extrahiert aus dem `servers.fivem.net`-Produktions-Bundle (protobuf.js Runtime).
+Extracted from the `servers.fivem.net` production bundle (protobuf.js runtime).
 
 ```protobuf
 syntax = "proto3";
@@ -210,7 +210,7 @@ message ServerData {
   string gametype = 5;
   string mapname = 6;
   repeated string resources = 8;
-  string server = 9;                 // z.B. "FXServer-master v1.0.0.35945 linux"
+  string server = 9;                 // e.g. "FXServer-master v1.0.0.35945 linux"
   repeated Player players = 10;
   int32 iconVersion = 11;
   map<string, string> vars = 12;
@@ -221,51 +221,51 @@ message ServerData {
 }
 
 message Server {
-  string EndPoint = 1;               // Hash-ID bzw. Endpoint
+  string EndPoint = 1;               // hash ID or endpoint
   ServerData Data = 2;
-  int32 id = 3;                      // internes Listen-Feld (joinId)
+  int32 id = 3;                      // internal list field (joinId)
 }
 ```
 
-**Stream-Container-Format:** `u32 (LE)` Nachrichtenlänge, gefolgt von genau so vielen Bytes `Server`-Message — wiederholt bis Stream-Ende.
+**Stream container format:** `u32 (LE)` message length, followed by exactly that many bytes of `Server` message — repeated until end of stream.
 
 ---
 
-## 4. Cfx.re Runtime- und Infrastruktur-Endpunkte
+## 4. Cfx.re Runtime & Infrastructure Endpoints
 
-Alle GET, öffentlich, ohne Auth.
+All GET, public, no auth.
 
-### 4.1 Spielerzähler
+### 4.1 Player counters
 
-| Endpunkt | Status | Inhalt |
-|----------|--------|--------|
-| `https://runtime.fivem.net/counts.json` | ✅ 200 | FünfM-Spieler-/Serverzähler |
-| `https://static.cfx.re/runtime/counts.json` | ✅ 200 | dto. (statisches CDN) |
-| `https://static.cfx.re/runtime/counts_rdr3.json` | ✅ 200 | RedM-Zähler |
+| Endpoint | Status | Content |
+|----------|--------|---------|
+| `https://runtime.fivem.net/counts.json` | ✅ 200 | FiveM player/server counters |
+| `https://static.cfx.re/runtime/counts.json` | ✅ 200 | same (static CDN) |
+| `https://static.cfx.re/runtime/counts_rdr3.json` | ✅ 200 | RedM counters |
 
-### 4.2 Pinned / Promoted / Blacklist
+### 4.2 Pinned / promoted / blacklist
 
-| Endpunkt | Status | Inhalt |
-|----------|--------|--------|
-| `https://runtime.fivem.net/pins.json` | ✅ 200 | Gepinnte/Top-Server |
-| `https://runtime.fivem.net/promotions_targeting.json` | ✅ 200 | Promotion-Targeting |
-| `https://runtime.fivem.net/nui-blacklist.json` | ✅ 200 | NUI-Domain-Blacklist |
+| Endpoint | Status | Content |
+|----------|--------|---------|
+| `https://runtime.fivem.net/pins.json` | ✅ 200 | Pinned/top servers |
+| `https://runtime.fivem.net/promotions_targeting.json` | ✅ 200 | Promotion targeting |
+| `https://runtime.fivem.net/nui-blacklist.json` | ✅ 200 | NUI domain blacklist |
 
-### 4.3 Pool-Size-Limits (für `increase_pool_size`)
+### 4.3 Pool size limits (for `increase_pool_size`)
 
-| Endpunkt | Status |
+| Endpoint | Status |
 |----------|--------|
 | `https://content.cfx.re/mirrors/client/pool-size-limits/fivem.json` | ✅ 200 |
 | `https://content.cfx.re/mirrors/client/pool-size-limits/redm.json` | ✅ 200 |
 
-### 4.4 Natives-Dump
+### 4.4 Natives dumps
 
-| Endpunkt | Status |
+| Endpoint | Status |
 |----------|--------|
 | `https://static.cfx.re/natives/natives.lua` | ✅ 200 |
 | `https://static.cfx.re/natives/natives_rdr3.lua` | ✅ 200 |
 
-### 4.5 Server-Artifacts & Changelog ✅
+### 4.5 Server artifacts & changelog ✅
 
 ```
 GET https://changelogs-live.fivem.net/api/changelog/versions/{win32|linux}/server
@@ -284,98 +284,98 @@ GET https://changelogs-live.fivem.net/api/changelog/versions/{win32|linux}/serve
 }
 ```
 
-- Einzeln: `GET …/api/changelog/versions/win32/server/{buildNumber}` (Build-Nummer, nicht Versions-String).
-- Client-Artifacts analog: `https://runtime.fivem.net/artifacts/fivem/` (Verzeichnis-Listing).
+- Single build: `GET …/api/changelog/versions/win32/server/{buildNumber}` (build number, not version string).
+- Client artifacts analog: `https://runtime.fivem.net/artifacts/fivem/` (directory listing).
 
-### 4.6 Policy / User-Info
+### 4.6 Policy / user info
 
-| Endpunkt | Status | Inhalt |
-|----------|--------|--------|
-| `https://policy-live.fivem.net/api/getUserInfo/{id}` | ✅ 200 | Policy-Status eines Users |
-
----
-
-## 5. Forum-/Account-API (forum.cfx.re = Discourse)
-
-Basis: `https://forum.cfx.re` — Standard-Discourse-API-Endpunkte. Ohne Login-Cookies geben session-Endpunkte 404/403.
-
-| Endpunkt | Methode | Zweck |
-|----------|---------|-------|
-| `/session/current.json` | GET | Aktuelle Session (nur mit Cookie/Auth) |
-| `/session/csrf.json` | GET | CSRF-Token |
-| `/u/{username}.json` | GET | Öffentliches Profil |
-| `/u/check_username.json?username={username}` | GET | Username-Verfügbarkeit |
-| `/u/check_email.json?email={email}` | GET | E-Mail-Verfügbarkeit |
-| `/u/action/send_activation_email` | POST | Aktivierungsmail (Header: `Cfx-Entitlement-Ticket`, `x-csrf-token`, `discourse-present: true`, `x-requested-with: XMLHttpRequest`) |
+| Endpoint | Status | Content |
+|----------|--------|---------|
+| `https://policy-live.fivem.net/api/getUserInfo/{id}` | ✅ 200 | Policy status of a user |
 
 ---
 
-## 6. Server-Verwaltung (keine HTTP-REST-API, aber relevant)
+## 5. Forum / Account API (forum.cfx.re = Discourse)
+
+Base: `https://forum.cfx.re` — standard Discourse API endpoints. Without login cookies, session endpoints return 404/403.
+
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/session/current.json` | GET | Current session (only with cookie/auth) |
+| `/session/csrf.json` | GET | CSRF token |
+| `/u/{username}.json` | GET | Public profile |
+| `/u/check_username.json?username={username}` | GET | Username availability |
+| `/u/check_email.json?email={email}` | GET | Email availability |
+| `/u/action/send_activation_email` | POST | Activation email (headers: `Cfx-Entitlement-Ticket`, `x-csrf-token`, `discourse-present: true`, `x-requested-with: XMLHttpRequest`) |
+
+---
+
+## 6. Server Management (not an HTTP REST API, but relevant)
 
 ### 6.1 RCon
 
-- Aktivierung: `rcon_password <pw>` in `server.cfg` — **FXServer-RCon läuft über UDP** auf dem Game-Port.
-- Custom RCon-Commands: `RegisterCommand` (server) oder Legacy-Event `rconCommand`.
+- Activation: `rcon_password <pw>` in `server.cfg` — **FXServer RCon runs over UDP** on the game port.
+- Custom RCon commands: `RegisterCommand` (server-side) or the legacy `rconCommand` event.
 
-### 6.2 Wichtigste Server-Commands (via RCon/Console)
+### 6.2 Most important server commands (via RCon/console)
 
 `start`/`stop`/`ensure`/`restart [resource]`, `refresh`, `exec [file]`, `quit [reason]`, `status`, `clientkick [id] [reason]`, `say [msg]`, `svgui`
-→ Vollständig: [docs.fivem.net/docs/server-manual/server-commands/](https://docs.fivem.net/docs/server-manual/server-commands/)
+→ Full list: [docs.fivem.net/docs/server-manual/server-commands/](https://docs.fivem.net/docs/server-manual/server-commands/)
 
 ### 6.3 txAdmin
 
-- Lokale Web-API unter `http://localhost:40120/` (Token in `txData/txAdmin/cache/*.key`).
-- Fremd-REST-API: `https://txadmin.cfx.re` (nur mit txAdmin-Token des Servers).
+- Local web API at `http://localhost:40120/` (token in `txData/txAdmin/cache/*.key`).
+- Remote REST API: `https://txadmin.cfx.re` (only with the server's txAdmin token).
 
 ---
 
-## 7. Status der alten HAMz-Project/FiveM-Api-Liste (getestet 16.09.2026)
+## 7. Status of the old HAMz-Project/FiveM-Api list (tested 2026-09-16)
 
-| Endpunkt | Status | Ersatz |
-|----------|--------|--------|
-| `http://{ip:port}/info.json` | ✅ | — (lebt) |
-| `http://{ip:port}/dynamic.json` | ✅ | — (lebt) |
-| `http://{ip:port}/players.json` | ✅ | — (lebt) |
-| `servers-frontend.fivem.net/api/servers/single/{address}` | ⚠️ → ✅ | Neuer Host: `frontend.cfx-services.net/api/servers/single/{hashId}` |
-| `servers-frontend.fivem.net/api/servers/streamRedir` | ❌ 404 | `frontend.cfx-services.net/api/servers/streamRedir/` (Trailing Slash!, jetzt Protobuf) |
+| Endpoint | Status | Replacement |
+|----------|--------|-------------|
+| `http://{ip:port}/info.json` | ✅ | — (alive) |
+| `http://{ip:port}/dynamic.json` | ✅ | — (alive) |
+| `http://{ip:port}/players.json` | ✅ | — (alive) |
+| `servers-frontend.fivem.net/api/servers/single/{address}` | ⚠️ → ✅ | New host: `frontend.cfx-services.net/api/servers/single/{hashId}` |
+| `servers-frontend.fivem.net/api/servers/streamRedir` | ❌ 404 | `frontend.cfx-services.net/api/servers/streamRedir/` (trailing slash!, now Protobuf) |
 | `servers-frontend.fivem.net/api/servers/top/{language}` | ❌ | `gss.cfx-services.net/v1/public/featured-servers/fivem` |
-| `servers-frontend.fivem.net/api/upvote/` | ⚠️ 403 | Nur mit Cfx-Session-Auth |
-| `lambda.fivem.net/api/ticket/playtimes/...` | ❌ 503 | kein öffentlicher Ersatz |
-| `lambda.fivem.net` / `cnl-hb-live.fivem.net` | ❌ | tot/unerreichbar |
-| `sentry.fivem.net/auth/login` | ❌ | tot |
+| `servers-frontend.fivem.net/api/upvote/` | ⚠️ 403 | Only with Cfx session auth |
+| `lambda.fivem.net/api/ticket/playtimes/...` | ❌ 503 | no public replacement |
+| `lambda.fivem.net` / `cnl-hb-live.fivem.net` | ❌ | dead/unreachable |
+| `sentry.fivem.net/auth/login` | ❌ | dead |
 | `runtime.fivem.net/promotions_targeting.json` | ✅ | — |
 | `runtime.fivem.net/pins.json` | ✅ | — |
-| `changelogs-live.fivem.net/api/changelog/versions/{buildversion}` | ⚠️ | Format jetzt: `/api/changelog/versions/{win32\|linux}/server[/{build}]` |
+| `changelogs-live.fivem.net/api/changelog/versions/{buildversion}` | ⚠️ | Format now: `/api/changelog/versions/{win32\|linux}/server[/{build}]` |
 | `changelogs-live.fivem.net/api/changelog/versions/win32/server` | ✅ | — |
 | `runtime.fivem.net/nui-blacklist.json` | ✅ | — |
 | `runtime.fivem.net/counts.json` | ✅ | — |
 | `static.cfx.re/runtime/counts.json` | ✅ | — |
 | `static.cfx.re/runtime/counts_rdr3.json` | ✅ | — |
 | `runtime.fivem.net/tweets.json` | ❌ | `gss.cfx-services.net/v1/public/tweets` |
-| `runtime.fivem.net/loadscreen/...` | — | nicht mehr relevant |
+| `runtime.fivem.net/loadscreen/...` | — | no longer relevant |
 | `content.cfx.re/mirrors/client/pool-size-limits/fivem.json` | ✅ | — |
 | `content.cfx.re/mirrors/client/pool-size-limits/redm.json` | ✅ | — |
 | `static.cfx.re/natives/natives.lua` | ✅ | — |
 | `static.cfx.re/natives/natives_rdr3.lua` | ✅ | — |
 | `policy-live.fivem.net/api/getUserInfo/{id}` | ✅ | — |
-| `forum.cfx.re/*` (Discourse) | ⚠️ | lebt; Session-Endpunkte brauchen Auth |
+| `forum.cfx.re/*` (Discourse) | ⚠️ | alive; session endpoints need auth |
 
 ---
 
-## 8. Client-/Ingame-"APIs" (Abgrenzung)
+## 8. Client / In-Game "APIs" (distinction)
 
-Keine HTTP-Endpunkte, sondern Scripting-Oberflächen — hier nur der Verweis:
+Not HTTP endpoints, but scripting surfaces — reference only:
 
-- **Natives:** ~[docs.fivem.net/natives/](https://docs.fivem.net/natives/) (Dump: `static.cfx.re/natives/natives.lua`)
-- **Events:** `playerConnecting`, `playerDropped`, `rconCommand`, … → [Events-Referenz](https://docs.fivem.net/docs/scripting-reference/events/list/)
-- **Statebags, OneSync, Routing-Buckets:** [docs.fivem.net/docs/scripting-reference/](https://docs.fivem.net/docs/scripting-reference/)
+- **Natives:** ~[docs.fivem.net/natives/](https://docs.fivem.net/natives/) (dump: `static.cfx.re/natives/natives.lua`)
+- **Events:** `playerConnecting`, `playerDropped`, `rconCommand`, … → [events reference](https://docs.fivem.net/docs/scripting-reference/events/list/)
+- **Statebags, OneSync, routing buckets:** [docs.fivem.net/docs/scripting-reference/](https://docs.fivem.net/docs/scripting-reference/)
 
 ---
 
-## 9. Nutzungshinweise
+## 9. Usage Notes
 
-1. **Rate Limits:** Cfx.re betreibt keine dokumentierten öffentlichen Limits, aber aggressives Polling (besonders des 20-MB-Stream-Endpunkts) führt zu IP-Blocks. Für Live-Status: immer direkt `info.json`/`dynamic.json` am Zielserver pollen, nie die Master-Liste.
-2. **Protobuf-Dekodierung:** Für die Master-Liste eigenes Dekoding nötig (Schema in Abschnitt 3). Bequemer Weg für Einzelserver: `single/{hashId}` (JSON).
-3. **Player-Daten in der Master-Liste:** `players[].identifiers` sind dort anonymisiert/leer — vollständige Identifiers nur via eigenem Server (`players.json` vor Ort).
-4. **`cfx.re/join/{hashId}`** löst auf den Server auf (200 ✅) — für Connect-Buttons in eigenen Tools nutzbar.
-5. **Offizieller Support** existiert für keine dieser Endpunkte — sie sind inoffiziell, außer die `.json`/`/perf`-Endpunkte des eigenen Servers und die in den Docs referenzierten.
+1. **Rate limits:** Cfx.re does not publish documented public limits, but aggressive polling (especially of the 20 MB stream endpoint) leads to IP blocks. For live status: always poll `info.json`/`dynamic.json` directly on the target server, never the master list.
+2. **Protobuf decoding:** The master list requires custom decoding (schema in section 3). The convenient path for single servers: `single/{hashId}` (JSON).
+3. **Player data in the master list:** `players[].identifiers` are anonymized/empty there — full identifiers only via your own server (`players.json` on-site).
+4. **`cfx.re/join/{hashId}`** resolves to the server (200 ✅) — usable for connect buttons in your own tools.
+5. **Official support** exists for none of these endpoints — they are unofficial, except the `.json`/`/perf` endpoints of your own server and those referenced in the docs.
