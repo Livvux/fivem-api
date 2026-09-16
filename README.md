@@ -1,5 +1,7 @@
 # FiveM / Cfx.re API Documentation
 
+> **Also available as a browsable docs page:** [fivemdocs.com/reference/api](https://fivemdocs.com/reference/api)
+
 > **Last verified:** 2026-09-16 — All endpoints were tested live on the date of creation.
 > **Sources:** [docs.fivem.net](https://docs.fivem.net/docs/), [servers.fivem.net](https://servers.fivem.net/) (production frontend bundle analyzed), [github.com/citizenfx/fivem](https://github.com/citizenfx/fivem), [github.com/citizenfx/fivem-docs](https://github.com/citizenfx/fivem-docs), [HAMz-Project/FiveM-Api](https://github.com/HAMz-Project/FiveM-Api) (deprecated)
 
