@@ -1,6 +1,7 @@
 # FiveM / Cfx.re API Documentation
 
 > **Also available as a browsable docs page:** [fivemdocs.com/reference/api](https://fivemdocs.com/reference/api)
+> **AI agents:** an installable agent skill for these endpoints lives in [`skill/fivem-api/`](skill/fivem-api/SKILL.md) — see [Agent Skill](#agent-skill) below.
 
 > **Last verified:** 2026-09-16 — All endpoints were tested live on the date of creation.
 > **Sources:** [docs.fivem.net](https://docs.fivem.net/docs/), [servers.fivem.net](https://servers.fivem.net/) (production frontend bundle analyzed), [github.com/citizenfx/fivem](https://github.com/citizenfx/fivem), [github.com/citizenfx/fivem-docs](https://github.com/citizenfx/fivem-docs), [HAMz-Project/FiveM-Api](https://github.com/HAMz-Project/FiveM-Api) (deprecated)
@@ -371,6 +372,33 @@ Not HTTP endpoints, but scripting surfaces — reference only:
 - **Natives:** ~[docs.fivem.net/natives/](https://docs.fivem.net/natives/) (dump: `static.cfx.re/natives/natives.lua`)
 - **Events:** `playerConnecting`, `playerDropped`, `rconCommand`, … → [events reference](https://docs.fivem.net/docs/scripting-reference/events/list/)
 - **Statebags, OneSync, routing buckets:** [docs.fivem.net/docs/scripting-reference/](https://docs.fivem.net/docs/scripting-reference/)
+
+---
+
+## Agent Skill
+
+This repo ships an [Agent Skill](https://agentskills.io/) so AI coding agents (Claude Code, OpenCode, Codex, Gemini CLI, …) use the correct — and never the deprecated — FiveM endpoints.
+
+**Install:**
+
+```bash
+git clone https://github.com/Livvux/fivem-api.git
+mkdir -p ~/.agents/skills
+cp -r fivem-api/skill/fivem-api ~/.agents/skills/fivem-api
+```
+
+Or without cloning, if you already have the repo locally:
+
+```bash
+cp -r fivem-api/skill/fivem-api ~/.agents/skills/fivem-api
+```
+
+`~/.agents/skills/` is the cross-runtime skills directory recognized by Claude Code, Codex and Gemini CLI; OpenCode lists it as well. Restart your agent session afterwards.
+
+Contents:
+
+- `SKILL.md` — routing table (task → endpoint), dead-endpoint blocklist, polling gotchas, and a pointer to the fivemdocs.com knowledge base for FiveM development topics
+- `references/api-endpoints.md` — the complete verified endpoint reference (same content as this README)
 
 ---
 
