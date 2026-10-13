@@ -3,10 +3,10 @@
 > **Also available as a browsable docs page:** [fivemdocs.com/reference/api](https://fivemdocs.com/reference/api)
 > **AI agents:** an installable agent skill for these endpoints lives in [`skill/fivem-api/`](skill/fivem-api/SKILL.md) — see [Agent Skill](#agent-skill) below.
 
-> **Last verified:** 2026-09-16 — All endpoints were tested live on the date of creation.
+> **Last full manual verification:** 2026-09-16. This is a historical result, not a claim of current uptime. Daily smoke-test results are available in [GitHub Actions](../../actions/workflows/api-monitor.yml) and [monitoring documentation](checks/README.md).
 > **Sources:** [docs.fivem.net](https://docs.fivem.net/docs/), [servers.fivem.net](https://servers.fivem.net/) (production frontend bundle analyzed), [github.com/citizenfx/fivem](https://github.com/citizenfx/fivem), [github.com/citizenfx/fivem-docs](https://github.com/citizenfx/fivem-docs), [HAMz-Project/FiveM-Api](https://github.com/HAMz-Project/FiveM-Api) (deprecated)
 
-Legend: ✅ verified · ⚠️ alive, but restricted/needs auth · ❌ dead/unreachable
+Legend: ✅ verified **on 2026-09-16** (historical) · ⚠️ restricted/auth required at time of test · ❌ unavailable at time of test. These symbols are **not live status indicators**.
 
 ---
 
@@ -409,3 +409,7 @@ Contents:
 3. **Player data in the master list:** `players[].identifiers` are anonymized/empty there — full identifiers only via your own server (`players.json` on-site).
 4. **`cfx.re/join/{hashId}`** resolves to the server (200 ✅) — usable for connect buttons in your own tools.
 5. **Official support** exists for none of these endpoints — they are unofficial, except the `.json`/`/perf` endpoints of your own server and those referenced in the docs.
+
+## Ongoing validation and coverage
+
+The [daily monitor](.github/workflows/api-monitor.yml) checks selected small JSON endpoints for availability and basic response contracts. It records **pass**, **fail**, or **inconclusive** independently of the September 16 manual snapshot. See [scope, exclusions and commands](checks/README.md). No credentials, arbitrary player lists, or bulk Protobuf stream are fetched in CI. The API surface is unofficial and can change without notice.
