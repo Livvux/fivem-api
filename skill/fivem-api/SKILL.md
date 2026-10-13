@@ -5,7 +5,7 @@ description: Use when checking FiveM/Cfx.re server status, player counts, or ser
 
 # FiveM API
 
-Verified endpoint reference for FiveM / Cfx.re. Live-tested 2026-09-16.
+FiveM / Cfx.re endpoint reference, **last comprehensively live-tested 2026-09-16**. This is a historical snapshot, not guaranteed current. Inspect the latest GitHub Actions `api-monitor.yml` run for partial live results; inconclusive checks are not proof of retirement.
 Full details (schemas, protobuf definition, response examples): read `references/api-endpoints.md` in this skill's directory.
 
 ## Routing: task → endpoint
@@ -40,3 +40,7 @@ For scripting, server setup, convars, events, txAdmin, frameworks (ESX/QBCore/Qb
 - Live site sections: `https://fivemdocs.com/{getting-started,txadmin,frameworks,scripting,ops,security,performance,reference,game-references}/...`
 - Source repo (grep/read on demand): `github.com/Livvux/fivemdocs` → `content/**/*.mdx`
 - API reference page: `https://fivemdocs.com/reference/api` (same content as this skill's reference file)
+
+## Freshness and verification
+
+For production decisions, verify any endpoint directly before use. CI smoke tests cover only the URLs in `checks/endpoints.json`; the large Protobuf server stream, local FXServer endpoints and auth-restricted endpoints are excluded. Do not assume the September 2026 status legend is current. Do not expose player identifiers or access tokens in logs.
