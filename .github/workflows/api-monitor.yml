@@ -10,6 +10,7 @@ on:
       - '.github/workflows/api-monitor.yml'
 permissions:
   contents: read
+  issues: write
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -43,7 +44,7 @@ jobs:
           report=json.load(open("endpoint-results.json"))
           failures=[r for r in report["results"] if r["status"] == "fail"]
           body="Automated check at "+report["checked_at"]+" UTC. Review before changing documented status.\n\n"
-          body+="\n".join(f"- \`{r['id']}\`: {r['detail']} — {r['url']}" for r in failures)
+          body+="\n".join(f"- {r['id']}: {r['detail']} — {r['url']}" for r in failures)
           title="FiveM API: endpoint contract regression"
           q=subprocess.run(["gh","issue","list","--state","open","--search",title,"--json","number,title"],capture_output=True,text=True,check=True)
           existing=next((i for i in json.loads(q.stdout) if i["title"] == title),None)
