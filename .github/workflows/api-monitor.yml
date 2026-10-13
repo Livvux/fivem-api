@@ -1,0 +1,58 @@
+name: FiveM API monitor
+on:
+  schedule:
+    - cron: '23 6 * * *'
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'checks/**'
+      - 'scripts/check_endpoints.py'
+      - '.github/workflows/api-monitor.yml'
+permissions:
+  contents: read
+  issues: write
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate manifest
+        run: python scripts/check_endpoints.py --offline
+      - name: Probe public endpoints
+        id: probes
+        continue-on-error: true
+        run: python scripts/check_endpoints.py --output endpoint-results.json
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: endpoint-results
+          path: endpoint-results.json
+          if-no-files-found: ignore
+      - name: Open or update issue on confirmed failures
+        if: steps.probes.outcome == 'failure' && github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          python - <<'PY'
+          import json, os, subprocess
+          report=json.load(open("endpoint-results.json"))
+          failures=[r for r in report["results"] if r["status"] == "fail"]
+          body="Automated check at "+report["checked_at"]+" UTC. Review before changing documented status.\n\n"
+          body+="\n".join(f"- {r['id']}: {r['detail']} — {r['url']}" for r in failures)
+          title="FiveM API: endpoint contract regression"
+          q=subprocess.run(["gh","issue","list","--state","open","--search",title,"--json","number,title"],capture_output=True,text=True,check=True)
+          existing=next((i for i in json.loads(q.stdout) if i["title"] == title),None)
+          if existing:
+              subprocess.run(["gh","issue","comment",str(existing["number"]),"--body",body],check=True)
+          else:
+              subprocess.run(["gh","issue","create","--title",title,"--body",body],check=True)
+          PY
+      - name: Fail on contract regression
+        if: steps.probes.outcome == 'failure'
+        run: exit 1

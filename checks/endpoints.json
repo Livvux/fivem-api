@@ -1,0 +1,42 @@
+[
+  {
+    "id": "server-changelog-linux",
+    "url": "https://changelogs-live.fivem.net/api/changelog/versions/linux/server",
+    "schema": "changelog"
+  },
+  {
+    "id": "server-changelog-win32",
+    "url": "https://changelogs-live.fivem.net/api/changelog/versions/win32/server",
+    "schema": "changelog"
+  },
+  {
+    "id": "player-counts",
+    "url": "https://runtime.fivem.net/counts.json",
+    "schema": "counts"
+  },
+  {
+    "id": "redm-counts",
+    "url": "https://static.cfx.re/runtime/counts_rdr3.json",
+    "schema": "counts"
+  },
+  {
+    "id": "featured-servers",
+    "url": "https://gss.cfx-services.net/v1/public/featured-servers/fivem",
+    "schema": "featured"
+  },
+  {
+    "id": "server-single",
+    "url": "https://frontend.cfx-services.net/api/servers/single/moyejq",
+    "schema": "single"
+  },
+  {
+    "id": "tweets",
+    "url": "https://gss.cfx-services.net/v1/public/tweets",
+    "schema": "tweets"
+  },
+  {
+    "id": "fivem-pool-limits",
+    "url": "https://content.cfx.re/mirrors/client/pool-size-limits/fivem.json",
+    "schema": "pool"
+  }
+]
