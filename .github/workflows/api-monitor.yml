@@ -7,6 +7,7 @@ on:
     paths:
       - 'checks/**'
       - 'scripts/check_endpoints.py'
+      - 'tests/**'
       - '.github/workflows/api-monitor.yml'
 permissions:
   contents: read
@@ -22,6 +23,8 @@ jobs:
           python-version: '3.12'
       - name: Validate manifest
         run: python scripts/check_endpoints.py --offline
+      - name: Test response validation
+        run: python -m unittest discover -s tests -v
       - name: Probe public endpoints
         id: probes
         continue-on-error: true

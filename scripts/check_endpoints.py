@@ -19,7 +19,15 @@ def validate(name, data):
     if name == "changelog":
         return isinstance(data, dict) and any(k in data for k in ("latest", "recommended", "critical"))
     if name == "counts":
-        return isinstance(data, dict)
+        # Observed responses: [null, 297210, null] and [3591, 0, 11267].
+        # Slot meanings and the full upstream contract are undocumented.
+        return (
+            isinstance(data, list)
+            and len(data) == 3
+            and type(data[1]) is int and data[1] >= 0
+            and all(value is None or (type(value) is int and value >= 0)
+                    for value in (data[0], data[2]))
+        )
     if name == "featured":
         return isinstance(data, dict) and isinstance(data.get("servers"), list)
     if name == "single":
